@@ -635,6 +635,7 @@ function getExpectedEventNameSlug(eventType) {
   // Returns the normalized event slug used in the required filename
   if (eventType === 'Web Wizards') return 'WebWizards';
   if (eventType === 'Digital Identity') return 'DigitalIdentity';
+  if (eventType === 'Prompt Engineering') return 'PromptEngineering';
   return eventType.replace(/\s+/g, '');
 }
 
@@ -652,6 +653,9 @@ function validateCuriousFile(file, schoolCode) {
   if (eventType === 'Web Wizards') {
     allowed = ['zip'];
     forbidden = ['rar', '7z', 'tar', 'gz', 'exe', 'bat', 'sh', 'php'];
+  } else if (eventType === 'Prompt Engineering') {
+    allowed = ['pdf', 'docx', 'doc', 'txt', 'zip', 'png', 'jpeg', 'jpg'];
+    forbidden = ['exe', 'bat', 'sh', 'php', 'js', 'html', 'htm'];
   } else {
     // Digital Identity
     allowed = ['png', 'jpeg', 'jpg', 'pdf'];
@@ -744,7 +748,7 @@ function updateCuriousComputedName() {
   const schoolCodeInput = document.getElementById('schoolCode');
   const eventType = document.body.getAttribute('data-event-type') || 'Digital Identity';
   const eventSlug = getExpectedEventNameSlug(eventType);
-  const ext = eventType === 'Web Wizards' ? 'ZIP' : 'PNG / JPG / PDF';
+  const ext = eventType === 'Web Wizards' ? 'ZIP' : (eventType === 'Prompt Engineering' ? 'PDF / DOCX / TXT / ZIP' : 'PNG / JPG / PDF');
 
   if (!currentCuriousFile) {
     // Show the required format hint even before file selection
@@ -900,14 +904,14 @@ async function handleCuriousUpload() {
 
   try {
     const base64Data = await readCuriousFileAsBase64(file);
-    const prefix = eventType === 'Web Wizards' ? 'WW' : 'DI';
+    const prefix = eventType === 'Web Wizards' ? 'WW' : (eventType === 'Prompt Engineering' ? 'PE' : 'DI');
     const randomId = Math.floor(1000 + Math.random() * 9000);
     const token = `APEX26-${prefix}-${schoolCode.toUpperCase()}-${randomId}`;
 
     const payload = {
       event: eventType,
       fileName: finalName,
-      mimeType: file.type || (eventType === 'Web Wizards' ? 'application/zip' : 'image/png'),
+      mimeType: file.type || (eventType === 'Web Wizards' ? 'application/zip' : (eventType === 'Prompt Engineering' ? 'application/pdf' : 'image/png')),
       fileBase64: base64Data,
       schoolCode: schoolCode,
       token: token
@@ -1405,6 +1409,11 @@ const ApexTimerEngine = (() => {
       name: 'Digital Identity',
       defaultSeconds: 60 * 60, // 60 minutes
       storageKey: 'apex_timer_digital_identity'
+    },
+    prompt_engineering: {
+      name: 'Prompt Engineering',
+      defaultSeconds: 60 * 60, // 60 minutes
+      storageKey: 'apex_timer_prompt_engineering'
     }
   };
 
@@ -1421,6 +1430,15 @@ const ApexTimerEngine = (() => {
     },
     digital_identity: {
       name: 'Digital Identity',
+      status: 'ready',
+      totalSeconds: 60 * 60,
+      remainingSeconds: 60 * 60,
+      endTime: null,
+      announcement: '',
+      lastUpdated: Date.now()
+    },
+    prompt_engineering: {
+      name: 'Prompt Engineering',
       status: 'ready',
       totalSeconds: 60 * 60,
       remainingSeconds: 60 * 60,
@@ -1791,11 +1809,11 @@ const ApexTimerEngine = (() => {
   function updateAdminUI() {
     if (!isAdminBound) return;
 
-    ['web_wizards', 'digital_identity'].forEach(eventKey => {
+    ['web_wizards', 'digital_identity', 'prompt_engineering'].forEach(eventKey => {
       const ev = timerState[eventKey];
       if (!ev) return;
 
-      const prefix = eventKey === 'web_wizards' ? 'ww' : 'di';
+      const prefix = eventKey === 'web_wizards' ? 'ww' : (eventKey === 'prompt_engineering' ? 'pe' : 'di');
       const remaining = getLiveRemaining(eventKey);
 
       // Digits
@@ -1863,7 +1881,7 @@ const ApexTimerEngine = (() => {
   // Smooth 1-Second Client Clock Ticker (Ensures butter-smooth countdown between SSE pushes)
   setInterval(() => {
     let changed = false;
-    ['web_wizards', 'digital_identity'].forEach(key => {
+    ['web_wizards', 'digital_identity', 'prompt_engineering'].forEach(key => {
       const ev = timerState[key];
       if (ev && ev.status === 'running') {
         const remaining = getLiveRemaining(key);

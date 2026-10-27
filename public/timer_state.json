@@ -1,0 +1,29 @@
+{
+  "web_wizards": {
+    "name": "Web Wizards",
+    "status": "ready",
+    "totalSeconds": 5400,
+    "remainingSeconds": 5400,
+    "endTime": null,
+    "announcement": "",
+    "lastUpdated": 1793089229442
+  },
+  "digital_identity": {
+    "name": "Digital Identity",
+    "status": "ready",
+    "totalSeconds": 3600,
+    "remainingSeconds": 3600,
+    "endTime": null,
+    "announcement": "",
+    "lastUpdated": 1793089229442
+  },
+  "prompt_engineering": {
+    "name": "Prompt Engineering",
+    "status": "ready",
+    "totalSeconds": 3600,
+    "remainingSeconds": 3600,
+    "endTime": null,
+    "announcement": "",
+    "lastUpdated": 1793089229442
+  }
+}

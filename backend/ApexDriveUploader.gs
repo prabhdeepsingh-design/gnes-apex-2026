@@ -29,7 +29,8 @@
 
 const FOLDERS = {
   'Web Wizards': '1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal',
-  'Digital Identity': '12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx'
+  'Digital Identity': '12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx',
+  'Prompt Engineering': '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S'
 };
 
 const ADMIN_KEY = 'APEX_2026_HEAD_KEY_98f12c8b74';
@@ -54,7 +55,7 @@ function doPost(e) {
         })).setMimeType(ContentService.MimeType.JSON);
       }
       const props = PropertiesService.getScriptProperties();
-      const key = data.event === 'Digital Identity' ? 'timer_digital_identity' : 'timer_web_wizards';
+      const key = data.event === 'Digital Identity' ? 'timer_digital_identity' : (data.event === 'Prompt Engineering' ? 'timer_prompt_engineering' : 'timer_web_wizards');
       props.setProperty(key, JSON.stringify(data.timerState));
       return ContentService.createTextOutput(JSON.stringify({
         status: 'success',
@@ -78,7 +79,7 @@ function doPost(e) {
     // File name is strictly validated by the frontend as SCHOOLCODE_EVENTNAME.ext
     // Use the submitted fileName directly without modification to avoid double-prefixing
     const schoolCode = (data.schoolCode || 'SCH').toUpperCase();
-    const safeFileName = data.fileName || (eventType === 'Web Wizards' ? 'project.zip' : 'logo.png');
+    const safeFileName = data.fileName || (eventType === 'Web Wizards' ? 'project.zip' : (eventType === 'Prompt Engineering' ? 'submission.pdf' : 'logo.png'));
     
     // Decode and create file inside Google Drive Folder
     const decodedBytes = Utilities.base64Decode(base64String);

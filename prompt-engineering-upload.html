@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prompt Engineering — Dedicated Submission Portal | GNE'S APEX 2026</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-event-type="Prompt Engineering">
+
+  <!-- Ambient Glowing Background -->
+  <div class="bg-ambient" aria-hidden="true">
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+    <div class="glow-orb glow-orb-3"></div>
+  </div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- ═══ TOP BRAND HEADER ═══ -->
+  <header class="portal-header">
+    <div class="container portal-nav">
+      <a href="index.html" class="portal-brand">
+        <div class="portal-logos">
+          <img src="assets/causmic-club-circular-logo.png" alt="Causmic Club Logo" class="portal-logo-img" />
+        </div>
+        <div class="portal-brand-text">
+          <span class="portal-brand-title">GNE'S <span>APEX 2026</span></span>
+          <span class="portal-brand-sub">Causmic Club &bull; GNDEC Ludhiana</span>
+        </div>
+      </a>
+    </div>
+  </header>
+
+  <!-- ═══ STEP NAVIGATION ═══ -->
+  <nav class="step-nav-bar">
+    <div class="step-container">
+      <a href="prompt-engineering.html" class="step-item completed">
+        <div class="step-circle">✓</div>
+        <span class="step-label">Overview &amp; Rules</span>
+      </a>
+      <div class="step-divider filled"></div>
+      <a href="prompt-engineering-theme.html" class="step-item completed">
+        <div class="step-circle">✓</div>
+        <span class="step-label">Theme &amp; Details</span>
+      </a>
+      <div class="step-divider filled"></div>
+      <div class="step-item active">
+        <div class="step-circle">3</div>
+        <span class="step-label">File Submission</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══ HERO SECTION ═══ -->
+  <header class="curious-hero">
+    <h1 class="curious-title">Prompt Engineering</h1>
+    <p class="curious-subtitle">Dedicated Submission Portal &mdash; Validate and upload your prompt transcripts and responses directly to the evaluation depository.</p>
+  </header>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <main class="container" style="position: relative; z-index: 1;">
+
+    <!-- ═══ SUBMISSION REQUIREMENTS SUMMARY ═══ -->
+    <section class="guidelines-card">
+      <div class="guidelines-header">
+        <div>
+          <h3>📋 Submission Rules &amp; Depository Verification</h3>
+          <p>Verify your solution file matches all event requirements before submitting:</p>
+        </div>
+      </div>
+
+      <div class="guidelines-grid">
+        <div class="guideline-box">
+          <div class="icon">📦</div>
+          <h4>Size Restriction</h4>
+          <p>Maximum allowed size: <strong>50 MB</strong>. Larger files will be blocked automatically.</p>
+        </div>
+
+        <div class="guideline-box">
+          <div class="icon">✅</div>
+          <h4>Accepted Formats</h4>
+          <p>Documents, transcripts &amp; archives:</p>
+          <div class="tag-list">
+            <span class="tag-allowed">.pdf</span>
+            <span class="tag-allowed">.docx</span>
+            <span class="tag-allowed">.txt</span>
+            <span class="tag-allowed">.zip</span>
+            <span class="tag-allowed">.png / .jpg</span>
+          </div>
+        </div>
+
+        <div class="guideline-box">
+          <div class="icon">📁</div>
+          <h4>Target Depository</h4>
+          <p>Submissions route to the official Google Drive evaluation folder:</p>
+          <div style="margin-top:6px;">
+            <a href="https://drive.google.com/drive/folders/1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S?usp=sharing" target="_blank" rel="noopener noreferrer" style="font-size:0.8rem; color:var(--accent-gold-light); text-decoration:underline; word-break:break-all;">
+              📂 Open Drive Folder (1ca6yRt8Rltsy...) &rarr;
+            </a>
+          </div>
+        </div>
+
+        <div class="guideline-box">
+          <div class="icon">🏷️</div>
+          <h4>Required File Naming</h4>
+          <p>Your file <strong>must be named exactly</strong> as:</p>
+          <code style="display:block; margin:6px 0; padding:6px 10px; background:rgba(255,255,255,0.06); border-radius:6px; font-size:0.88em; color:var(--accent-gold-light); border:1px solid rgba(255,220,100,0.2);">[SCHOOLCODE]_PromptEngineering.ext</code>
+          <p style="font-size:0.82em; color:var(--text-secondary);">Example: <code>GNE001_PromptEngineering.pdf</code></p>
+          <p style="font-size:0.82em; color:#ff7c7c; margin-top:4px;">Files with any other name will be <strong>rejected</strong>.</p>
+        </div>
+      </div>
+
+      <!-- Preservation Warning -->
+      <div class="critical-warning">
+        <span style="font-size: 1.5rem; line-height: 1;">⚠️</span>
+        <div>
+          <strong>MANDATORY PRESERVATION:</strong>
+          <p style="margin-top:2px;">
+            Do not delete or modify your prompt conversation history in ChatGPT or your local exported document until the final results are declared.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ DEDICATED UPLOAD CARD ═══ -->
+    <section class="upload-card">
+      <h2 class="upload-card-title">
+        Upload Prompt Engineering Submission
+      </h2>
+
+      <!-- 1. School Code Input -->
+      <div class="form-group">
+        <label for="schoolCode">🏫 Assigned School Code *</label>
+        <input 
+          type="text" 
+          id="schoolCode" 
+          placeholder="e.g. SCH-042 or DPS-108" 
+          maxlength="30" 
+          autocomplete="off"
+          required
+        />
+        <span class="form-group-note">
+          Enter your institution's designated code. Do not enter personal student names.
+        </span>
+      </div>
+
+      <!-- 2. Drop Zone & File Selector -->
+      <div class="form-group">
+        <label>📁 Select Competition Solution File (Max 50 MB) *</label>
+        <div class="drop-zone" id="dropZone">
+          <input 
+            type="file" 
+            id="fileInput" 
+            accept=".pdf,.docx,.doc,.txt,.zip,.png,.jpg,.jpeg"
+          />
+          <div class="drop-icon">☁️</div>
+          <div class="drop-label">Drag &amp; drop submission file here, or <span>browse</span></div>
+          <div class="drop-formats">Accepted: PDF, DOCX, TXT, ZIP, PNG, JPG &bull; Max 50 MB</div>
+          <div class="file-info-chip" id="fileInfoChip" style="display:none;"></div>
+        </div>
+      </div>
+
+      <div id="fileNamingBadge" class="file-naming-badge" style="display:block;">
+        🏷️ <strong>Required filename format:</strong> 
+        <span id="computedFileName"></span>
+      </div>
+
+      <!-- 3. Button Controls: Preview, Clear, Upload -->
+      <div class="button-row">
+        <button type="button" class="btn btn-secondary btn-sm" id="previewBtn" onclick="openPreviewModal()" disabled>
+          👁️ Preview File
+        </button>
+        <button type="button" class="btn-danger-outline" id="clearBtn" onclick="clearUploadForm()">
+          🗑️ Clear Selection
+        </button>
+      </div>
+
+      <div style="margin-top: 14px;">
+        <button type="button" class="btn btn-primary" id="uploadBtn" onclick="handleCuriousUpload()" style="width: 100%;">
+          <span>🚀 Upload to Drive Depository</span>
+        </button>
+      </div>
+
+      <!-- Progress Indicator -->
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">Uploading...</div>
+      </div>
+
+      <!-- Status Alert Box -->
+      <div class="status-box" id="statusBox"></div>
+    </section>
+
+    <!-- ═══ CONFIRMATION NOTE ═══ -->
+    <div class="submission-note" id="confirmationNote" style="display:none;">
+      🎉 <strong id="uploadedFileName"></strong> has been uploaded to the Prompt Engineering depository with your assigned school code.
+    </div>
+
+    <!-- Navigation links -->
+    <div style="text-align: center; margin: 24px 0 40px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+      <a href="prompt-engineering-theme.html" class="btn btn-secondary btn-sm">
+        &larr; Back to Theme &amp; Details
+      </a>
+      <a href="https://drive.google.com/drive/folders/1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
+        📂 Open Drive Submissions Folder &rarr;
+      </a>
+      <a href="index.html" class="btn btn-secondary btn-sm">
+        Portal Home
+      </a>
+    </div>
+
+  </main>
+
+  <!-- ═══ PREVIEW MODAL ═══ -->
+  <div class="modal-overlay" id="previewModal">
+    <div class="modal-content-box">
+      <div class="modal-header-bar">
+        <h3>Submission File Preview</h3>
+        <button type="button" class="btn-close-modal" onclick="closePreviewModal()">&times;</button>
+      </div>
+      <div class="preview-body">
+        <div class="preview-media-cont" id="previewMediaContainer">
+          <!-- Dynamic media injected here -->
+        </div>
+        <div class="preview-meta-box">
+          <div><strong>Original Name:</strong> <span id="metaOrigName">-</span></div>
+          <div><strong>Uploaded As:</strong> <span id="metaTargetName" style="color:var(--accent-gold-light); font-family:var(--font-mono);">-</span></div>
+          <div><strong>File Size:</strong> <span id="metaSize">-</span></div>
+          <div><strong>MIME Type:</strong> <span id="metaType">-</span></div>
+        </div>
+        <div style="margin-top: 18px; text-align: right;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="closePreviewModal()">Close Preview</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="portal-footer">
+    <div class="container portal-footer-inner" style="justify-content: center; text-align: center;">
+      <div>
+        &copy; 2026 GNE'S APEX &bull; Causmic Club &bull; Guru Nanak Dev Engineering College, Ludhiana
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+</body>
+</html>

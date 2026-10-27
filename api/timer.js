@@ -17,6 +17,15 @@ let timerState = {
     endTime: null,
     announcement: '',
     lastUpdated: Date.now()
+  },
+  prompt_engineering: {
+    name: 'Prompt Engineering',
+    status: 'ready',
+    totalSeconds: 3600,
+    remainingSeconds: 3600,
+    endTime: null,
+    announcement: '',
+    lastUpdated: Date.now()
   }
 };
 
@@ -52,6 +61,9 @@ module.exports = (req, res) => {
       timerState.digital_identity.status = 'ready';
       timerState.digital_identity.remainingSeconds = 3600;
       timerState.digital_identity.endTime = null;
+      timerState.prompt_engineering.status = 'ready';
+      timerState.prompt_engineering.remainingSeconds = 3600;
+      timerState.prompt_engineering.endTime = null;
     } else if (timerState[eventKey]) {
       const ev = timerState[eventKey];
       if (action === 'start') {

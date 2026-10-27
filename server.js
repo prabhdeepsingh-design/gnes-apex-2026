@@ -87,6 +87,9 @@ const CORE_ASSETS = [
   'digital-identity.html',
   'digital-identity-theme.html',
   'digital-identity-upload.html',
+  'prompt-engineering.html',
+  'prompt-engineering-theme.html',
+  'prompt-engineering-upload.html',
   'assets/causmic-club-circular-logo.png'
 ];
 
@@ -126,6 +129,15 @@ const defaultState = {
     endTime: null,
     announcement: '',
     lastUpdated: Date.now()
+  },
+  prompt_engineering: {
+    name: 'Prompt Engineering',
+    status: 'ready',
+    totalSeconds: 60 * 60, // 60 min = 3600s
+    remainingSeconds: 60 * 60,
+    endTime: null,
+    announcement: '',
+    lastUpdated: Date.now()
   }
 };
 
@@ -139,6 +151,9 @@ function loadPersistedState() {
       const raw = fs.readFileSync(STATE_FILE, 'utf8');
       const parsed = JSON.parse(raw);
       if (parsed && parsed.web_wizards && parsed.digital_identity) {
+        if (!parsed.prompt_engineering) {
+          parsed.prompt_engineering = JSON.parse(JSON.stringify(defaultState.prompt_engineering));
+        }
         timerState = parsed;
         console.log('[Server] Loaded timer state from timer_state.json');
         return;
@@ -197,7 +212,7 @@ function getRemainingSeconds(eventState) {
 // Server-side 1-second ticker to detect countdown expiry
 setInterval(() => {
   let changed = false;
-  ['web_wizards', 'digital_identity'].forEach(key => {
+  ['web_wizards', 'digital_identity', 'prompt_engineering'].forEach(key => {
     const ev = timerState[key];
     if (ev && ev.status === 'running') {
       const rem = getRemainingSeconds(ev);
@@ -406,6 +421,7 @@ const server = http.createServer(async (req, res) => {
       studentUrl: `http://${primaryIp}:${PORT}`,
       webWizardsUrl: `http://${primaryIp}:${PORT}/web-wizards-theme.html`,
       digitalIdentityUrl: `http://${primaryIp}:${PORT}/digital-identity-theme.html`,
+      promptEngineeringUrl: `http://${primaryIp}:${PORT}/prompt-engineering-theme.html`,
       connectedClients: sseClients.size
     }));
     return;

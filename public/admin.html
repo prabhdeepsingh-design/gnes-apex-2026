@@ -131,6 +131,9 @@
           <a href="digital-identity-theme.html" target="_blank" class="btn btn-secondary btn-sm">
             👁️ Digital Identity Theme Tab
           </a>
+          <a href="prompt-engineering-theme.html" target="_blank" class="btn btn-secondary btn-sm">
+            👁️ Prompt Engineering Theme Tab
+          </a>
         </div>
       </div>
 
@@ -161,7 +164,7 @@
             <span class="stat-title">Live Workstations Connected</span>
           </div>
           <button type="button" class="btn btn-secondary btn-sm" onclick="handleResetAllTimers()" style="border-color: rgba(244, 63, 94, 0.4); color: #fda4af;">
-            ↺ Reset Both Timers
+            ↺ Reset All Timers
           </button>
         </div>
       </div>
@@ -336,6 +339,88 @@
           </div>
         </article>
 
+        <!-- ───────────────────────────────────────────────
+             PANEL 3: PROMPT ENGINEERING EVENT HEAD
+             ─────────────────────────────────────────────── -->
+        <article class="admin-panel-card ai-panel">
+          <div class="admin-panel-header">
+            <div class="admin-panel-title-group">
+              <div class="admin-panel-icon ai">🤖</div>
+              <div>
+                <h3 class="admin-panel-title">Prompt Engineering</h3>
+                <span class="admin-panel-subtitle">ChatGPT Prompting Challenge (Saksham: 9888478606)</span>
+              </div>
+            </div>
+            <span class="admin-state-pill ready" id="pe-pill">● READY</span>
+          </div>
+
+          <!-- Official Clock Display -->
+          <div class="admin-clock-box">
+            <div class="admin-clock-digits" id="pe-clock">60:00</div>
+            <div class="admin-clock-meta" id="pe-meta">Total: 60m | Status: READY</div>
+          </div>
+
+          <!-- Preset Duration Selection -->
+          <div class="admin-preset-row">
+            <span class="admin-preset-label">Duration:</span>
+            <button type="button" class="btn-preset active" onclick="setEventDuration('prompt_engineering', 60, this)">60 Min</button>
+            <button type="button" class="btn-preset" onclick="setEventDuration('prompt_engineering', 45, this)">45 Min</button>
+            <button type="button" class="btn-preset" onclick="setEventDuration('prompt_engineering', 30, this)">30 Min</button>
+            <div class="admin-custom-min-wrap">
+              <input type="number" id="pe-custom-min" class="admin-custom-input" placeholder="Min" min="1" max="300" />
+              <button type="button" class="btn-preset" onclick="applyCustomDuration('prompt_engineering', 'pe-custom-min')">Set</button>
+            </div>
+          </div>
+
+          <!-- Control Action Buttons -->
+          <div class="admin-ctrl-grid">
+            <button type="button" class="btn-ctrl btn-ctrl-start" id="pe-btn-start" onclick="ApexTimerEngine.startTimer('prompt_engineering')">
+              ▶ Start Competition Timer
+            </button>
+            <button type="button" class="btn-ctrl btn-ctrl-pause" id="pe-btn-pause" onclick="ApexTimerEngine.pauseTimer('prompt_engineering')" style="display:none;">
+              ⏸ Pause Timer
+            </button>
+            <button type="button" class="btn-ctrl btn-ctrl-resume" id="pe-btn-resume" onclick="ApexTimerEngine.resumeTimer('prompt_engineering')" style="display:none;">
+              ▶ Resume Timer
+            </button>
+            <button type="button" class="btn-ctrl btn-ctrl-extra" onclick="ApexTimerEngine.addExtraTime('prompt_engineering', 5)">
+              +5 Min Extra
+            </button>
+            <button type="button" class="btn-ctrl btn-ctrl-extra" onclick="ApexTimerEngine.addExtraTime('prompt_engineering', 10)">
+              +10 Min Extra
+            </button>
+            <button type="button" class="btn-ctrl btn-ctrl-reset" onclick="confirmReset('prompt_engineering')">
+              ↺ Reset Timer
+            </button>
+            <button type="button" class="btn-ctrl btn-ctrl-end" onclick="confirmEnd('prompt_engineering')">
+              ⛔ End Competition
+            </button>
+          </div>
+
+          <!-- Live Announcement Broadcast -->
+          <div class="admin-broadcast-section">
+            <div class="admin-broadcast-header">
+              <span>📢 Broadcast Notice (Prompt Engineering)</span>
+            </div>
+            <input 
+              type="text" 
+              id="pe-announcement-input" 
+              class="admin-broadcast-input" 
+              placeholder="e.g. Prompts released on board. 10 minutes remaining!"
+              maxlength="140"
+            />
+            <div class="admin-broadcast-actions">
+              <button type="button" class="btn-broadcast" onclick="broadcastNotice('prompt_engineering', 'pe-announcement-input')">
+                Broadcast Notice
+              </button>
+              <button type="button" class="btn-clear-broadcast" onclick="clearNotice('prompt_engineering')">
+                Clear
+              </button>
+            </div>
+            <p id="pe-active-announcement" style="font-size:0.75rem; color:#34d399; margin-top:0.5rem; display:none;"></p>
+          </div>
+        </article>
+
       </div>
 
       <!-- ═══ 3. SECURITY & ACTIVITY AUDIT LOG ═══ -->
@@ -369,6 +454,9 @@
           </a>
           <a href="https://drive.google.com/drive/folders/12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
             Digital Identity Submissions ↗
+          </a>
+          <a href="https://drive.google.com/drive/folders/1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S?usp=sharing" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
+            Prompt Engineering Submissions ↗
           </a>
           <a href="index.html" class="btn btn-secondary btn-sm">
             &larr; Portal Home
@@ -600,9 +688,16 @@
       renderAuditLogs();
     }
 
+    function getEventDisplayName(key) {
+      if (key === 'web_wizards') return 'Web Wizards';
+      if (key === 'prompt_engineering') return 'Prompt Engineering';
+      return 'Digital Identity';
+    }
+
     // Event Heads Actions
     async function setEventDuration(eventKey, minutes, btn) {
-      if (confirm(`Set duration for ${eventKey === 'web_wizards' ? 'Web Wizards' : 'Digital Identity'} to ${minutes} minutes? This will reset the timer to standby.`)) {
+      const name = getEventDisplayName(eventKey);
+      if (confirm(`Set duration for ${name} to ${minutes} minutes? This will reset the timer to standby.`)) {
         const ok = await ApexTimerEngine.setDuration(eventKey, minutes);
         if (ok && btn && btn.parentElement) {
           btn.parentElement.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
@@ -621,14 +716,14 @@
     }
 
     async function confirmReset(eventKey) {
-      const name = eventKey === 'web_wizards' ? 'Web Wizards' : 'Digital Identity';
+      const name = getEventDisplayName(eventKey);
       if (confirm(`Reset the ${name} timer back to its initial time?`)) {
         await ApexTimerEngine.resetTimer(eventKey);
       }
     }
 
     async function confirmEnd(eventKey) {
-      const name = eventKey === 'web_wizards' ? 'Web Wizards' : 'Digital Identity';
+      const name = getEventDisplayName(eventKey);
       if (confirm(`⚠️ WARNING: Are you sure you want to officially END the ${name} competition now? Participants will be instructed to proceed to submission immediately.`)) {
         await ApexTimerEngine.endTimer(eventKey);
       }
@@ -649,8 +744,9 @@
 
     async function clearNotice(eventKey) {
       await ApexTimerEngine.clearAnnouncement(eventKey);
-      const inputId = eventKey === 'web_wizards' ? 'ww-announcement-input' : 'di-announcement-input';
-      document.getElementById(inputId).value = '';
+      const inputId = eventKey === 'web_wizards' ? 'ww-announcement-input' : (eventKey === 'prompt_engineering' ? 'pe-announcement-input' : 'di-announcement-input');
+      const inputEl = document.getElementById(inputId);
+      if (inputEl) inputEl.value = '';
     }
 
     // Idle monitoring (15 min auto-lockout)
@@ -706,7 +802,7 @@
     }
 
     async function handleResetAllTimers() {
-      if (confirm('⚠️ RESET ENTIRE EVENT SYSTEM?\n\nThis will reset BOTH Web Wizards (90m) and Digital Identity (60m) timers back to initial standby state and clear all announcements.\n\nProceed?')) {
+      if (confirm('⚠️ RESET ENTIRE EVENT SYSTEM?\n\nThis will reset ALL Web Wizards (90m), Digital Identity (60m), and Prompt Engineering (60m) timers back to initial standby state and clear all announcements.\n\nProceed?')) {
         const ok = await ApexTimerEngine.resetAllTimers();
         if (ok) {
           alert('✓ System reset successfully! Timers restored to initial clean standby.');
