@@ -695,17 +695,25 @@ const server = http.createServer(async (req, res) => {
     safePath = '/index.html';
   }
 
-  // Candidate paths to support both local root and Vercel bundling / public folder
+  // Candidate paths to support both local root and Vercel bundling / public folder, including clean URLs
   const cleanRel = safePath.replace(/^[\/\\]+/, '');
   const candidatePaths = [
     path.join(ROOT_DIR, safePath),
+    path.join(ROOT_DIR, safePath + '.html'),
     path.join(ROOT_DIR, cleanRel),
+    path.join(ROOT_DIR, cleanRel + '.html'),
     path.join(ROOT_DIR, 'public', safePath),
+    path.join(ROOT_DIR, 'public', safePath + '.html'),
     path.join(ROOT_DIR, 'public', cleanRel),
+    path.join(ROOT_DIR, 'public', cleanRel + '.html'),
     path.join(__dirname, safePath),
+    path.join(__dirname, safePath + '.html'),
     path.join(__dirname, cleanRel),
+    path.join(__dirname, cleanRel + '.html'),
     path.join(__dirname, 'public', safePath),
-    path.join(__dirname, 'public', cleanRel)
+    path.join(__dirname, 'public', safePath + '.html'),
+    path.join(__dirname, 'public', cleanRel),
+    path.join(__dirname, 'public', cleanRel + '.html')
   ];
 
   let filePath = candidatePaths.find(p => {
