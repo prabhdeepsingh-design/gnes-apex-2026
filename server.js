@@ -17,7 +17,7 @@ const url = require('url');
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
-const ROOT_DIR = __dirname;
+const ROOT_DIR = (typeof process !== 'undefined' && process.cwd && (fs.existsSync(path.join(process.cwd(), 'style.css')) || fs.existsSync(path.join(process.cwd(), 'public', 'style.css')))) ? process.cwd() : __dirname;
 const STATE_FILE = path.join(ROOT_DIR, 'timer_state.json');
 const SUBMISSIONS_DIR = path.join(ROOT_DIR, 'submissions');
 const ADMIN_KEY = 'APEX_2026_HEAD_KEY_98f12c8b74';
@@ -74,6 +74,38 @@ function getCachedFile(filePath) {
   }
   return null;
 }
+
+// Pre-trace and warm cache for critical frontend assets (ensures Vercel bundler packages them)
+const CORE_ASSETS = [
+  'index.html',
+  'style.css',
+  'script.js',
+  'admin.html',
+  'web-wizards.html',
+  'web-wizards-theme.html',
+  'web-wizards-upload.html',
+  'digital-identity.html',
+  'digital-identity-theme.html',
+  'digital-identity-upload.html',
+  'assets/causmic-club-circular-logo.png'
+];
+
+CORE_ASSETS.forEach(rel => {
+  try {
+    const candidates = [
+      path.join(ROOT_DIR, rel),
+      path.join(ROOT_DIR, 'public', rel),
+      path.join(__dirname, rel),
+      path.join(__dirname, 'public', rel)
+    ];
+    for (const p of candidates) {
+      if (fs.existsSync(p)) {
+        getCachedFile(p);
+        break;
+      }
+    }
+  } catch (e) {}
+});
 
 // Default Clean Standby Timer State
 const defaultState = {
@@ -659,18 +691,26 @@ const server = http.createServer(async (req, res) => {
 
   // 5. Static File Serving with In-Memory Streaming & Caching
   let safePath = path.normalize(decodeURIComponent(pathname)).replace(/^(\.\.[\/\\])+/, '');
-  if (safePath === '/' || safePath === '\\') {
+  if (safePath === '/' || safePath === '\\' || safePath === '') {
     safePath = '/index.html';
   }
 
-  const filePath = path.join(ROOT_DIR, safePath);
+  // Candidate paths to support both local root and Vercel bundling / public folder
+  const cleanRel = safePath.replace(/^[\/\\]+/, '');
+  const candidatePaths = [
+    path.join(ROOT_DIR, safePath),
+    path.join(ROOT_DIR, cleanRel),
+    path.join(ROOT_DIR, 'public', safePath),
+    path.join(ROOT_DIR, 'public', cleanRel),
+    path.join(__dirname, safePath),
+    path.join(__dirname, cleanRel),
+    path.join(__dirname, 'public', safePath),
+    path.join(__dirname, 'public', cleanRel)
+  ];
 
-  // Security check: ensure path is within ROOT_DIR
-  if (!filePath.startsWith(ROOT_DIR)) {
-    res.writeHead(403, { 'Content-Type': 'text/plain' });
-    res.end('403 Forbidden');
-    return;
-  }
+  let filePath = candidatePaths.find(p => {
+    try { return fs.existsSync(p) && fs.statSync(p).isFile(); } catch (e) { return false; }
+  }) || path.join(ROOT_DIR, safePath);
 
   const ext = path.extname(filePath).toLowerCase();
   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
@@ -724,24 +764,28 @@ process.on('unhandledRejection', (reason) => {
 // Start Server
 loadPersistedState();
 
-server.listen(PORT, HOST, () => {
-  const netIps = getNetworkIps();
-  const primaryIp = netIps.find(i => i.ip.startsWith('192.168.') || i.ip.startsWith('10.'))?.ip || (netIps[0]?.ip || 'localhost');
+if (!process.env.VERCEL) {
+  server.listen(PORT, HOST, () => {
+    const netIps = getNetworkIps();
+    const primaryIp = netIps.find(i => i.ip.startsWith('192.168.') || i.ip.startsWith('10.'))?.ip || (netIps[0]?.ip || 'localhost');
 
-  console.log('================================================================');
-  console.log("  GNE'S APEX 2026 - Central Real-Time Event Server (SSE Ready)");
-  console.log('================================================================');
-  console.log(`  Local Access:     http://localhost:${PORT}`);
-  console.log(`  Lab / Wi-Fi IP:   http://${primaryIp}:${PORT}`);
-  netIps.forEach(net => {
-    console.log(`    ↳ Interface:    http://${net.ip}:${PORT} (${net.iface})`);
+    console.log('================================================================');
+    console.log("  GNE'S APEX 2026 - Central Real-Time Event Server (SSE Ready)");
+    console.log('================================================================');
+    console.log(`  Local Access:     http://localhost:${PORT}`);
+    console.log(`  Lab / Wi-Fi IP:   http://${primaryIp}:${PORT}`);
+    netIps.forEach(net => {
+      console.log(`    ↳ Interface:    http://${net.ip}:${PORT} (${net.iface})`);
+    });
+    console.log('----------------------------------------------------------------');
+    console.log(`  Student Portal:   http://${primaryIp}:${PORT}`);
+    console.log(`  Web Wizards:      http://${primaryIp}:${PORT}/web-wizards-theme.html`);
+    console.log(`  Digital Identity: http://${primaryIp}:${PORT}/digital-identity-theme.html`);
+    console.log(`  Event Heads Hub:  http://${primaryIp}:${PORT}/admin.html`);
+    console.log('----------------------------------------------------------------');
+    console.log('  Live Real-Time SSE: Ready for 200+ simultaneous workstations');
+    console.log('================================================================\n');
   });
-  console.log('----------------------------------------------------------------');
-  console.log(`  Student Portal:   http://${primaryIp}:${PORT}`);
-  console.log(`  Web Wizards:      http://${primaryIp}:${PORT}/web-wizards-theme.html`);
-  console.log(`  Digital Identity: http://${primaryIp}:${PORT}/digital-identity-theme.html`);
-  console.log(`  Event Heads Hub:  http://${primaryIp}:${PORT}/admin.html`);
-  console.log('----------------------------------------------------------------');
-  console.log('  Live Real-Time SSE: Ready for 200+ simultaneous workstations');
-  console.log('================================================================\n');
-});
+}
+
+module.exports = server;

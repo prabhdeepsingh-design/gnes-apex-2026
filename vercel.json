@@ -1,6 +1,12 @@
 {
+  "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
+  "functions": {
+    "server.js": {
+      "includeFiles": "{style.css,script.js,*.html,assets/**,public/**}"
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
