@@ -1,0 +1,5 @@
+# Ignore local server and test runners so Vercel treats the project as a pure static CDN site
+server.js
+test_concurrency.js
+test_full_suite.js
+timer_state.json
