@@ -37,3 +37,6 @@ assets/web-wizards-assets/README_Master_Projects.txt
 public/assets/web-wizards-assets/EVolt*/
 public/assets/web-wizards-assets/HeritageHub*/
 public/assets/web-wizards-assets/README_Master_Projects.txt
+
+assets/web-wizards-assets/*.pdf
+public/assets/web-wizards-assets/*.pdf
