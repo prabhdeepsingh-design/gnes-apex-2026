@@ -95,9 +95,17 @@ const handler = async (req, res) => {
 
     const token = payload.token || `APEX26-${eventType === 'Web Wizards' ? 'WW' : (eventType === 'Prompt Engineering' ? 'PE' : 'DI')}-${schoolCode}-${Math.floor(1000 + Math.random() * 9000)}`;
 
+    const DRIVE_FOLDERS = {
+      'Web Wizards': '1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal',
+      'Digital Identity': '12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx',
+      'Prompt Engineering': '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S'
+    };
+    const targetFolderId = payload.folderId || DRIVE_FOLDERS[eventType] || '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S';
+
     // Relay to Google Drive
     const driveResult = await relayToGoogleDrive(GAS_ENDPOINT, {
       event: eventType,
+      folderId: targetFolderId,
       token,
       schoolCode,
       fileName: safeFileName,

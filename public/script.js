@@ -7,7 +7,8 @@
 const APEX_CONFIG = {
   driveFolders: {
     'Web Wizards': '1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal',
-    'Digital Identity': '12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx'
+    'Digital Identity': '12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx',
+    'Prompt Engineering': '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S'
   },
   // If a Google Apps Script web app URL is provided, background POSTs are sent directly here!
   // Set your URL here or enter it via the Admin Setup button in the footer.
@@ -898,6 +899,7 @@ async function handleCuriousUpload() {
 
     const payload = {
       event: eventType,
+      folderId: (APEX_CONFIG.driveFolders && APEX_CONFIG.driveFolders[eventType]) || '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S',
       fileName: finalName,
       mimeType: file.type || (eventType === 'Web Wizards' ? 'application/zip' : (eventType === 'Prompt Engineering' ? 'application/pdf' : 'image/png')),
       fileBase64: base64Data,

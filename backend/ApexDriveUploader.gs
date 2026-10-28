@@ -65,7 +65,7 @@ function doPost(e) {
     }
 
     const eventType = data.event || 'Web Wizards';
-    const folderId = FOLDERS[eventType] || FOLDERS['Web Wizards'];
+    const folderId = (data.folderId && String(data.folderId).trim()) || FOLDERS[eventType] || (eventType === 'Prompt Engineering' ? '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S' : FOLDERS['Web Wizards']);
     
     // Open target Google Drive Folder
     const folder = DriveApp.getFolderById(folderId);

@@ -667,9 +667,15 @@ const server = http.createServer(async (req, res) => {
 
       // Asynchronous background relay to Google Drive (Non-blocking)
       const gasEndpoint = 'https://script.google.com/macros/s/AKfycbznYufWQribMU1D0yD_RMu1aP9B5JSp4SG2qIUeBlgSt3fmmoHbyQ1trG2sBr8seBSN/exec';
+      const DRIVE_FOLDERS = {
+        'Web Wizards': '1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal',
+        'Digital Identity': '12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx',
+        'Prompt Engineering': '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S'
+      };
       if (gasEndpoint) {
         relayToGoogleDrive(gasEndpoint, {
           event: eventType,
+          folderId: payload.folderId || DRIVE_FOLDERS[eventType] || '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S',
           token,
           schoolCode,
           fileName: safeFileName,
