@@ -6,7 +6,7 @@
  * 
  * Target Folders:
  * Web Wizards Folder ID:     1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal
- * Digital Identity Folder ID: 12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx
+ * Digital Identity Folder ID: 12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx\n * Prompt Engineering Folder ID: 1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S
  * 
  * 2-MINUTE DEPLOYMENT INSTRUCTIONS:
  * 1. Go to https://script.google.com in your browser (signed in with your Google account).
@@ -34,6 +34,21 @@ const FOLDERS = {
 };
 
 const ADMIN_KEY = 'APEX_2026_HEAD_KEY_98f12c8b74';
+
+
+function resolveFolderId(data) {
+  if (data && data.folderId && String(data.folderId).trim()) {
+    return String(data.folderId).trim();
+  }
+  const ev = String((data && data.event) || '').toLowerCase().replace(/[^a-z]/g, '');
+  if (ev.indexOf('prompt') > -1 || ev === 'pe') {
+    return '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S'; // Prompt Engineering Folder
+  }
+  if (ev.indexOf('digital') > -1 || ev === 'di' || ev.indexOf('identity') > -1) {
+    return '12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx'; // Digital Identity Folder
+  }
+  return '1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal'; // Web Wizards Folder
+}
 
 function doPost(e) {
   try {
@@ -65,7 +80,7 @@ function doPost(e) {
     }
 
     const eventType = data.event || 'Web Wizards';
-    const folderId = (data.folderId && String(data.folderId).trim()) || FOLDERS[eventType] || (eventType === 'Prompt Engineering' ? '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S' : FOLDERS['Web Wizards']);
+    const folderId = resolveFolderId(data);
     
     // Open target Google Drive Folder
     const folder = DriveApp.getFolderById(folderId);

@@ -667,15 +667,24 @@ const server = http.createServer(async (req, res) => {
 
       // Asynchronous background relay to Google Drive (Non-blocking)
       const gasEndpoint = 'https://script.google.com/macros/s/AKfycbzCxgBdPggSF9xpNL1V2DWiTikOwBPKzUnB3eLENydKunLTpVIooR8fBr5xklC9xLrFaA/exec';
-      const DRIVE_FOLDERS = {
-        'Web Wizards': '1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal',
-        'Digital Identity': '12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx',
-        'Prompt Engineering': '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S'
-      };
+      function resolveDriveFolderId(payload, eventType) {
+        if (payload && payload.folderId && String(payload.folderId).trim()) {
+          return String(payload.folderId).trim();
+        }
+        const ev = String(eventType || (payload && payload.event) || '').toLowerCase().replace(/[^a-z]/g, '');
+        if (ev.indexOf('prompt') > -1 || ev === 'pe') {
+          return '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S';
+        }
+        if (ev.indexOf('digital') > -1 || ev === 'di' || ev.indexOf('identity') > -1) {
+          return '12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx';
+        }
+        return '1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal';
+      }
+      const targetFolderId = resolveDriveFolderId(payload, eventType);
       if (gasEndpoint) {
         relayToGoogleDrive(gasEndpoint, {
           event: eventType,
-          folderId: payload.folderId || DRIVE_FOLDERS[eventType] || '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S',
+          folderId: targetFolderId,
           token,
           schoolCode,
           fileName: safeFileName,

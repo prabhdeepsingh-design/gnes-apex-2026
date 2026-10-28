@@ -95,12 +95,20 @@ const handler = async (req, res) => {
 
     const token = payload.token || `APEX26-${eventType === 'Web Wizards' ? 'WW' : (eventType === 'Prompt Engineering' ? 'PE' : 'DI')}-${schoolCode}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    const DRIVE_FOLDERS = {
-      'Web Wizards': '1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal',
-      'Digital Identity': '12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx',
-      'Prompt Engineering': '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S'
-    };
-    const targetFolderId = payload.folderId || DRIVE_FOLDERS[eventType] || '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S';
+    function resolveDriveFolderId(payload, eventType) {
+      if (payload && payload.folderId && String(payload.folderId).trim()) {
+        return String(payload.folderId).trim();
+      }
+      const ev = String(eventType || (payload && payload.event) || '').toLowerCase().replace(/[^a-z]/g, '');
+      if (ev.indexOf('prompt') > -1 || ev === 'pe') {
+        return '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S';
+      }
+      if (ev.indexOf('digital') > -1 || ev === 'di' || ev.indexOf('identity') > -1) {
+        return '12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx';
+      }
+      return '1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal';
+    }
+    const targetFolderId = resolveDriveFolderId(payload, eventType);
 
     // Relay to Google Drive
     const driveResult = await relayToGoogleDrive(GAS_ENDPOINT, {

@@ -897,9 +897,13 @@ async function handleCuriousUpload() {
     const randomId = Math.floor(1000 + Math.random() * 9000);
     const token = `APEX26-${prefix}-${cleanCode}-${randomId}`;
 
+    const resolvedFolderId = (APEX_CONFIG.driveFolders && APEX_CONFIG.driveFolders[eventType]) ||
+      (eventType.toLowerCase().includes('prompt') ? '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S' : 
+       (eventType.toLowerCase().includes('digital') ? '12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx' : '1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal'));
+
     const payload = {
       event: eventType,
-      folderId: (APEX_CONFIG.driveFolders && APEX_CONFIG.driveFolders[eventType]) || '1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S',
+      folderId: resolvedFolderId,
       fileName: finalName,
       mimeType: file.type || (eventType === 'Web Wizards' ? 'application/zip' : (eventType === 'Prompt Engineering' ? 'application/pdf' : 'image/png')),
       fileBase64: base64Data,
