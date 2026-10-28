@@ -18,6 +18,10 @@ pdf_content.txt
 assets/extracted/
 assets/*_hi.png
 
+# Nested clones/backups
+gnes-apex-2026/
+GNES-APEX/
+
 # OS and Editor metadata
 .DS_Store
 Thumbs.db

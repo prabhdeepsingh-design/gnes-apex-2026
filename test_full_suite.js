@@ -96,6 +96,9 @@ async function runSuite() {
     { path: '/digital-identity.html', expectedCode: 200, contentType: 'text/html' },
     { path: '/digital-identity-theme.html', expectedCode: 200, contentType: 'text/html' },
     { path: '/digital-identity-upload.html', expectedCode: 200, contentType: 'text/html' },
+    { path: '/prompt-engineering.html', expectedCode: 200, contentType: 'text/html' },
+    { path: '/prompt-engineering-theme.html', expectedCode: 200, contentType: 'text/html' },
+    { path: '/prompt-engineering-upload.html', expectedCode: 200, contentType: 'text/html' },
     { path: '/admin.html', expectedCode: 200, contentType: 'text/html' },
     { path: '/style.css', expectedCode: 200, contentType: 'text/css' },
     { path: '/script.js', expectedCode: 200, contentType: 'application/javascript' },
@@ -127,6 +130,9 @@ async function runSuite() {
     'digital-identity.html',
     'digital-identity-theme.html',
     'digital-identity-upload.html',
+    'prompt-engineering.html',
+    'prompt-engineering-theme.html',
+    'prompt-engineering-upload.html',
     'admin.html'
   ];
 
@@ -337,6 +343,7 @@ async function runSuite() {
 
   assert(gsContent.includes("1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal"), 'Web Wizards Drive Folder ID is configured');
   assert(gsContent.includes("12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx"), 'Digital Identity Drive Folder ID is configured');
+  assert(gsContent.includes("1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S"), 'Prompt Engineering Drive Folder ID is configured');
   assert(gsContent.includes("function doPost(e)"), 'Google Apps Script defines doPost handler');
   assert(gsContent.includes("function doGet(e)"), 'Google Apps Script defines doGet handler');
 
