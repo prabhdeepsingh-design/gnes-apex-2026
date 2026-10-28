@@ -11,7 +11,7 @@ const APEX_CONFIG = {
   },
   // If a Google Apps Script web app URL is provided, background POSTs are sent directly here!
   // Set your URL here or enter it via the Admin Setup button in the footer.
-  gasEndpoint: 'https://script.google.com/macros/s/AKfycbzCxgBdPggSF9xpNL1V2DWiTikOwBPKzUnB3eLENydKunLTpVIooR8fBr5xklC9xLrFaA/exec'
+  gasEndpoint: 'https://script.google.com/macros/s/AKfycbznYufWQribMU1D0yD_RMu1aP9B5JSp4SG2qIUeBlgSt3fmmoHbyQ1trG2sBr8seBSN/exec'
 };
 
 // Retrieve active endpoint (code or stored)
@@ -840,7 +840,11 @@ async function handleCuriousUpload() {
   const uploadedFileName = document.getElementById('uploadedFileName');
 
   const schoolCode = (schoolCodeInput?.value || '').trim();
-  const file = currentCuriousFile;
+  const fileInput = document.getElementById('fileInput');
+  const file = currentCuriousFile || (fileInput && fileInput.files && fileInput.files[0]);
+  if (!currentCuriousFile && file) {
+    currentCuriousFile = file;
+  }
   const eventType = document.body.getAttribute('data-event-type') || 'Digital Identity';
 
   if (statusBox) {
@@ -988,9 +992,9 @@ async function handleCuriousUpload() {
     if (schoolCodeInput) schoolCodeInput.value = '';
 
   } catch (err) {
-    console.error(err);
+    console.error('[Upload Submission Error]', err);
     clearInterval(progressTimer);
-    showCuriousStatus('error', '✕ Transmission failed. Please verify your file and try again.');
+    showCuriousStatus('error', `✕ Transmission failed: ${err.message || 'Please check your file and network connection.'}`);
   } finally {
     if (uploadBtn) uploadBtn.disabled = false;
     setTimeout(() => {
@@ -1031,9 +1035,18 @@ function formatCuriousBytes(bytes) {
 
 function readCuriousFileAsBase64(file) {
   return new Promise((resolve, reject) => {
+    if (!file) return reject(new Error('No file provided to reader'));
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = reject;
+    reader.onload = () => {
+      const res = reader.result || '';
+      const commaIdx = res.indexOf(',');
+      if (commaIdx !== -1) {
+        resolve(res.substring(commaIdx + 1));
+      } else {
+        resolve(res);
+      }
+    };
+    reader.onerror = () => reject(new Error('Browser could not read file from device storage'));
     reader.readAsDataURL(file);
   });
 }

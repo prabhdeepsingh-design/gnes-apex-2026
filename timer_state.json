@@ -6,7 +6,7 @@
     "remainingSeconds": 5400,
     "endTime": null,
     "announcement": "",
-    "lastUpdated": 1793179537037
+    "lastUpdated": 1793180699176
   },
   "digital_identity": {
     "name": "Digital Identity",
@@ -15,7 +15,7 @@
     "remainingSeconds": 3600,
     "endTime": null,
     "announcement": "",
-    "lastUpdated": 1793179537037
+    "lastUpdated": 1793180699176
   },
   "prompt_engineering": {
     "name": "Prompt Engineering",
@@ -24,6 +24,6 @@
     "remainingSeconds": 3600,
     "endTime": null,
     "announcement": "",
-    "lastUpdated": 1793179537037
+    "lastUpdated": 1793180699176
   }
 }
