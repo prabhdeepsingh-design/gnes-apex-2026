@@ -76,10 +76,18 @@ function doPost(e) {
       base64String = base64String.split(',')[1];
     }
     
-    // File name is strictly validated by the frontend as SCHOOLCODE_EVENTNAME.ext
-    // Use the submitted fileName directly without modification to avoid double-prefixing
-    const schoolCode = (data.schoolCode || 'SCH').toUpperCase();
-    const safeFileName = data.fileName || (eventType === 'Web Wizards' ? 'project.zip' : (eventType === 'Prompt Engineering' ? 'submission.pdf' : 'logo.png'));
+    // File name is strictly formatted to match UI specification: [SCHOOLCODE]_[EVENTNAME].[ext]
+    const schoolCode = (data.schoolCode || 'SCH').toUpperCase().replace(/[^A-Z0-9_-]/g, '') || 'SCH';
+    const eventSlug = eventType === 'Web Wizards' ? 'WebWizards' : (eventType === 'Prompt Engineering' ? 'PromptEngineering' : 'DigitalIdentity');
+    const rawFileName = (data.fileName || '').trim();
+    let ext = '';
+    if (rawFileName.lastIndexOf('.') !== -1) {
+      ext = rawFileName.substring(rawFileName.lastIndexOf('.')).toLowerCase();
+    } else {
+      ext = eventType === 'Web Wizards' ? '.zip' : (eventType === 'Prompt Engineering' ? '.pdf' : '.png');
+    }
+    const expectedPrefix = (schoolCode + '_' + eventSlug).toUpperCase();
+    const safeFileName = rawFileName.toUpperCase().startsWith(expectedPrefix) ? rawFileName : (schoolCode + '_' + eventSlug + ext);
     
     // Decode and create file inside Google Drive Folder
     const decodedBytes = Utilities.base64Decode(base64String);

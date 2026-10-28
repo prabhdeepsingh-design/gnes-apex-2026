@@ -601,9 +601,15 @@ const server = http.createServer(async (req, res) => {
       const eventType = payload.event || 'Web Wizards';
       const rawCode = (payload.schoolCode || 'SCH').trim();
       const schoolCode = rawCode.toUpperCase().replace(/[^A-Z0-9_-]/g, '') || 'SCH';
-      const rawFileName = payload.fileName || (eventType === 'Web Wizards' ? 'project.zip' : 'logo.png');
+      const eventSlug = eventType === 'Web Wizards' ? 'WebWizards' : (eventType === 'Prompt Engineering' ? 'PromptEngineering' : 'DigitalIdentity');
+      const rawFileName = payload.fileName || (eventType === 'Web Wizards' ? 'project.zip' : (eventType === 'Prompt Engineering' ? 'submission.pdf' : 'logo.png'));
       const safeOrigName = path.basename(rawFileName);
-      const safeFileName = safeOrigName.toUpperCase().startsWith(schoolCode + '_') ? safeOrigName : `${schoolCode}_${safeOrigName}`;
+      let ext = path.extname(safeOrigName).toLowerCase();
+      if (!ext) {
+        ext = eventType === 'Web Wizards' ? '.zip' : (eventType === 'Prompt Engineering' ? '.pdf' : '.png');
+      }
+      const expectedPrefix = `${schoolCode}_${eventSlug}`.toUpperCase();
+      const safeFileName = safeOrigName.toUpperCase().startsWith(expectedPrefix) ? safeOrigName : `${schoolCode}_${eventSlug}${ext}`;
       
       let base64String = payload.fileBase64 || payload.data || '';
       if (base64String.indexOf(',') > -1) {
@@ -626,7 +632,7 @@ const server = http.createServer(async (req, res) => {
       fs.writeFileSync(destPath, fileBuffer);
 
       // Submission Token & Record
-      const token = payload.token || `APEX26-${eventType === 'Web Wizards' ? 'WW' : 'DI'}-${schoolCode}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const token = payload.token || `APEX26-${eventType === 'Web Wizards' ? 'WW' : (eventType === 'Prompt Engineering' ? 'PE' : 'DI')}-${schoolCode}-${Math.floor(1000 + Math.random() * 9000)}`;
       const submissionRecord = {
         token,
         event: eventType,
@@ -665,7 +671,7 @@ const server = http.createServer(async (req, res) => {
           event: eventType,
           token,
           schoolCode,
-          fileName: safeOrigName,
+          fileName: safeFileName,
           mimeType: payload.mimeType || 'application/octet-stream',
           fileBase64: base64String
         }).catch(err => console.warn('[Background Drive Sync Warning]', err.message));

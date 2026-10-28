@@ -9,8 +9,9 @@ package-lock.json
 .vercel
 
 # Submissions (runtime testing archives)
-submissions/Web Wizards/*.zip
-submissions/Digital Identity/*.zip
+submissions/Web Wizards/*
+submissions/Digital Identity/*
+submissions/Prompt Engineering/*
 
 # Unused brochure dumps and extracted scratch files
 pdf_preview/

@@ -250,8 +250,18 @@ async function runSuite() {
   });
   assert(testUploadRes.statusCode === 200 && testUploadRes.json && testUploadRes.json.status === 'success',
     'POST /api/upload successfully receives and secures file on server');
-  assert(testUploadRes.json && testUploadRes.json.fileName === 'SUITE-01_suite_project.zip',
-    'POST /api/upload formats filename correctly: SUITE-01_suite_project.zip');
+  assert(testUploadRes.json && testUploadRes.json.fileName === 'SUITE-01_WebWizards.zip',
+    'POST /api/upload formats filename correctly: SUITE-01_WebWizards.zip');
+
+  const peUploadRes = await httpPost('/api/upload', {
+    event: 'Prompt Engineering',
+    schoolCode: 'DPS-101',
+    fileName: 'my_chatgpt_prompt.pdf',
+    mimeType: 'application/pdf',
+    fileBase64: Buffer.from('TEST_PDF_BYTES').toString('base64')
+  });
+  assert(peUploadRes.statusCode === 200 && peUploadRes.json && peUploadRes.json.fileName === 'DPS-101_PromptEngineering.pdf',
+    'POST /api/upload formats Prompt Engineering filename correctly: DPS-101_PromptEngineering.pdf');
 
   // Submissions Query API
   const subsRes = await httpGet('/api/submissions');
@@ -320,10 +330,11 @@ async function runSuite() {
 
   // Naming standardization check
   const testSchoolCode = 'SCH-042';
-  const testOriginalName = 'final_submission.zip';
-  const computedName = `${testSchoolCode}_${testOriginalName}`;
-  assert(computedName === 'SCH-042_final_submission.zip',
-    'Computed file naming matches specification: [SchoolCode]_[FileName]');
+  const testEventSlug = 'WebWizards';
+  const testExt = 'zip';
+  const computedName = `${testSchoolCode}_${testEventSlug}.${testExt}`;
+  assert(computedName === 'SCH-042_WebWizards.zip',
+    'Computed file naming matches specification: [SchoolCode]_[EventSlug].[ext]');
 
   // Security Salt and Passcode Hash Verification
   const SALT = 'GNE_APEX_2026_SALT_';

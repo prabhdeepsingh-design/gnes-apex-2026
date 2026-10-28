@@ -683,30 +683,6 @@ function validateCuriousFile(file, schoolCode) {
     };
   }
 
-  // ── Strict naming enforcement: SCHOOLCODE_EVENTNAME.ext ──
-  // The filename (without extension) must be exactly SCHOOLCODE_EVENTNAME
-  const nameWithoutExt = file.name.slice(0, file.name.length - ext.length - 1);
-  const code = (schoolCode || '').trim().toUpperCase();
-  const expectedName = code ? `${code}_${eventSlug}` : null;
-
-  if (code && expectedName) {
-    // Check case-insensitively to be friendly, but give feedback
-    if (nameWithoutExt.toUpperCase() !== expectedName.toUpperCase()) {
-      return {
-        valid: false,
-        error: `🚫 Invalid filename! Your file must be named exactly:\n` +
-               `<strong style="color:var(--accent-gold-light); font-family:var(--font-mono); display:block; margin:6px 0; font-size:1.05em;">${expectedName}.${ext.toUpperCase()}</strong>` +
-               `Current name: <code>${file.name}</code><br>` +
-               `Please rename your file and re-upload.`
-      };
-    }
-  } else if (!code) {
-    return {
-      valid: false,
-      error: '⚠️ Please enter your School Code first before selecting a file.'
-    };
-  }
-
   return { valid: true };
 }
 
@@ -748,23 +724,23 @@ function updateCuriousComputedName() {
   const schoolCodeInput = document.getElementById('schoolCode');
   const eventType = document.body.getAttribute('data-event-type') || 'Digital Identity';
   const eventSlug = getExpectedEventNameSlug(eventType);
-  const ext = eventType === 'Web Wizards' ? 'ZIP' : (eventType === 'Prompt Engineering' ? 'PDF / DOCX / TXT / ZIP' : 'PNG / JPG / PDF');
 
-  if (!currentCuriousFile) {
-    // Show the required format hint even before file selection
-    const code = (schoolCodeInput?.value || '').trim();
-    if (computedFileName) {
-      computedFileName.textContent = code
-        ? `${code.toUpperCase()}_${eventSlug}.${ext}`
-        : `[YOUR_SCHOOL_CODE]_${eventSlug}.${ext}`;
-    }
-    if (fileNamingBadge) fileNamingBadge.style.display = 'block';
-    return;
+  const rawCode = (schoolCodeInput?.value || '').trim();
+  const code = rawCode.toUpperCase().replace(/[^A-Z0-9_-]/g, '') || '[YOUR_SCHOOL_CODE]';
+
+  let ext = '';
+  if (currentCuriousFile) {
+    ext = getCuriousFileExt(currentCuriousFile.name);
+  } else {
+    ext = eventType === 'Web Wizards' ? 'ZIP' : (eventType === 'Prompt Engineering' ? 'PDF / DOCX / TXT / ZIP' : 'PNG / JPG / PDF');
   }
 
-  // File is validated — show it as-is (name already matches required format)
-  if (computedFileName) computedFileName.textContent = currentCuriousFile.name;
-  if (fileNamingBadge) fileNamingBadge.style.display = 'block';
+  if (computedFileName) {
+    computedFileName.textContent = `${code}_${eventSlug}.${ext}`;
+  }
+  if (fileNamingBadge) {
+    fileNamingBadge.style.display = 'block';
+  }
 }
 
 function clearCuriousFileOnly() {
@@ -779,8 +755,8 @@ function clearCuriousFileOnly() {
     fileInfoChip.style.display = 'none';
     fileInfoChip.textContent = '';
   }
-  if (fileNamingBadge) fileNamingBadge.style.display = 'none';
   if (previewBtn) previewBtn.disabled = true;
+  updateCuriousComputedName();
 }
 
 function clearUploadForm() {
@@ -792,6 +768,7 @@ function clearUploadForm() {
   if (schoolCodeInput) schoolCodeInput.value = '';
   if (statusBox) statusBox.style.display = 'none';
   if (confirmationNote) confirmationNote.style.display = 'none';
+  updateCuriousComputedName();
 }
 
 function openPreviewModal() {
@@ -804,9 +781,13 @@ function openPreviewModal() {
   const metaTargetName = document.getElementById('metaTargetName');
   const metaSize = document.getElementById('metaSize');
   const metaType = document.getElementById('metaType');
+  const eventType = document.body.getAttribute('data-event-type') || 'Digital Identity';
 
-  const code = (schoolCodeInput?.value || '').trim() || '[UNASSIGNED_CODE]';
-  const targetName = `${code}_${currentCuriousFile.name}`;
+  const rawCode = (schoolCodeInput?.value || '').trim();
+  const code = rawCode.toUpperCase().replace(/[^A-Z0-9_-]/g, '') || '[YOUR_SCHOOL_CODE]';
+  const ext = getCuriousFileExt(currentCuriousFile.name);
+  const eventSlug = getExpectedEventNameSlug(eventType);
+  const targetName = `${code}_${eventSlug}.${ext}`;
 
   if (metaOrigName) metaOrigName.textContent = currentCuriousFile.name;
   if (metaTargetName) metaTargetName.textContent = targetName;
@@ -885,8 +866,11 @@ async function handleCuriousUpload() {
     return;
   }
 
-  // File is already validated as SCHOOLCODE_EVENTNAME.ext — use as-is, no double-prefix
-  const finalName = file.name;
+  const cleanCode = schoolCode.toUpperCase().replace(/[^A-Z0-9_-]/g, '') || 'SCH';
+  const eventSlug = getExpectedEventNameSlug(eventType);
+  const fileExt = getCuriousFileExt(file.name);
+  // Auto-format file name to match exact UI specification: [SCHOOLCODE]_[EVENTNAME].[ext]
+  const finalName = `${cleanCode}_${eventSlug}.${fileExt}`;
 
   if (uploadBtn) uploadBtn.disabled = true;
   if (progressWrap) progressWrap.style.display = 'block';
@@ -906,14 +890,14 @@ async function handleCuriousUpload() {
     const base64Data = await readCuriousFileAsBase64(file);
     const prefix = eventType === 'Web Wizards' ? 'WW' : (eventType === 'Prompt Engineering' ? 'PE' : 'DI');
     const randomId = Math.floor(1000 + Math.random() * 9000);
-    const token = `APEX26-${prefix}-${schoolCode.toUpperCase()}-${randomId}`;
+    const token = `APEX26-${prefix}-${cleanCode}-${randomId}`;
 
     const payload = {
       event: eventType,
       fileName: finalName,
       mimeType: file.type || (eventType === 'Web Wizards' ? 'application/zip' : (eventType === 'Prompt Engineering' ? 'application/pdf' : 'image/png')),
       fileBase64: base64Data,
-      schoolCode: schoolCode,
+      schoolCode: cleanCode,
       token: token
     };
 
