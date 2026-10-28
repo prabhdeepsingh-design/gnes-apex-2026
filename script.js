@@ -907,11 +907,11 @@ async function handleCuriousUpload() {
 
     let serverSaved = false;
 
-    // 1. Primary High-Speed Path: Save directly to Central Event Server via LAN (sub-second)
+    // 1. Primary High-Speed Path: Save directly to Central Event Server (LAN) or Vercel Serverless Route
     try {
       const serverBase = (typeof getApexServerBaseUrl === 'function') ? getApexServerBaseUrl() : '';
       const uploadUrl = `${serverBase}/api/upload`;
-      if (progressText) progressText.textContent = 'Saving to Central Event Server...';
+      if (progressText) progressText.textContent = 'Saving to evaluation repository...';
       
       const serverRes = await fetch(uploadUrl, {
         method: 'POST',
@@ -920,32 +920,29 @@ async function handleCuriousUpload() {
       });
 
       if (serverRes.ok) {
-        const resJson = await serverRes.json();
+        const resJson = await serverRes.json().catch(() => ({}));
         if (resJson && resJson.status === 'success') {
           serverSaved = true;
         }
       } else {
-        const errJson = await serverRes.json().catch(() => ({}));
-        throw new Error(errJson.message || `Server rejected file upload (HTTP ${serverRes.status})`);
+        console.warn(`[Apex Upload] Primary /api/upload returned HTTP ${serverRes.status}. Engaging direct Google Drive cloud bridge...`);
       }
     } catch (serverErr) {
-      if (serverErr.message && serverErr.message.includes('Server rejected')) {
-        throw serverErr; // Throw fatal server validation or payload errors
-      }
-      console.warn('Central Event Server upload fallback:', serverErr);
+      console.warn('[Apex Upload] Primary server route unavailable, engaging direct Google Drive fallback:', serverErr);
     }
 
-    // 2. Secondary Path: If local event server is not present, dispatch to Google Drive bridge
+    // 2. Secondary Path: If server route was not completed, dispatch directly to Google Drive bridge
     if (!serverSaved) {
       const gasEndpoint = getActiveGasEndpoint();
       if (gasEndpoint) {
-        if (progressText) progressText.textContent = 'Transmitting to Cloud Drive...';
+        if (progressText) progressText.textContent = 'Transmitting directly to Cloud Drive...';
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 35000);
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
         try {
           await fetch(gasEndpoint, {
             method: 'POST',
             mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(payload),
             signal: controller.signal
           });
@@ -953,10 +950,11 @@ async function handleCuriousUpload() {
           serverSaved = true;
         } catch (gasErr) {
           clearTimeout(timeoutId);
-          throw new Error('Google Drive upload timed out or network failed. Please verify connection.');
+          console.error('[Apex Upload] Direct Drive upload error:', gasErr);
+          throw new Error('Cloud Drive upload timed out or network failed. Please verify your connection and try again.');
         }
       } else {
-        throw new Error('No local server or Google Drive endpoint available.');
+        throw new Error('No local server or Google Drive storage endpoint available.');
       }
     }
 
