@@ -3,7 +3,7 @@
 const https = require('https');
 const path = require('path');
 
-const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbznYufWQribMU1D0yD_RMu1aP9B5JSp4SG2qIUeBlgSt3fmmoHbyQ1trG2sBr8seBSN/exec';
+const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzCxgBdPggSF9xpNL1V2DWiTikOwBPKzUnB3eLENydKunLTpVIooR8fBr5xklC9xLrFaA/exec';
 
 function relayToGoogleDrive(gasUrl, payload) {
   return new Promise((resolve, reject) => {

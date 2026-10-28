@@ -12,7 +12,7 @@ const APEX_CONFIG = {
   },
   // If a Google Apps Script web app URL is provided, background POSTs are sent directly here!
   // Set your URL here or enter it via the Admin Setup button in the footer.
-  gasEndpoint: 'https://script.google.com/macros/s/AKfycbznYufWQribMU1D0yD_RMu1aP9B5JSp4SG2qIUeBlgSt3fmmoHbyQ1trG2sBr8seBSN/exec'
+  gasEndpoint: 'https://script.google.com/macros/s/AKfycbzCxgBdPggSF9xpNL1V2DWiTikOwBPKzUnB3eLENydKunLTpVIooR8fBr5xklC9xLrFaA/exec'
 };
 
 // Retrieve active endpoint (code or stored)
