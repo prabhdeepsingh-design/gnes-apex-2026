@@ -103,7 +103,8 @@ async function runSuite() {
     { path: '/style.css', expectedCode: 200, contentType: 'text/css' },
     { path: '/script.js', expectedCode: 200, contentType: 'application/javascript' },
     { path: '/assets/causmic-club-circular-logo.png', expectedCode: 200, contentType: 'image/png' },
-    { path: '/assets/web-wizards-assets.zip', expectedCode: 200, contentType: 'application/zip' }
+    { path: '/assets/web-wizards-assets.zip', expectedCode: 200, contentType: 'application/zip' },
+    { path: '/assets/digital-identity-assets.pdf', expectedCode: 200, contentType: 'application/pdf' }
   ];
 
   for (const r of routesToTest) {
