@@ -29,3 +29,11 @@ Thumbs.db
 *.log
 .vscode/
 .idea/
+
+# Large extracted competition assets (preserved locally, packaged inside web-wizards-assets.zip)
+assets/web-wizards-assets/EVolt*/
+assets/web-wizards-assets/HeritageHub*/
+assets/web-wizards-assets/README_Master_Projects.txt
+public/assets/web-wizards-assets/EVolt*/
+public/assets/web-wizards-assets/HeritageHub*/
+public/assets/web-wizards-assets/README_Master_Projects.txt

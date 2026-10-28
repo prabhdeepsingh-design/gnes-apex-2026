@@ -4,7 +4,7 @@
   "trailingSlash": false,
   "functions": {
     "server.js": {
-      "includeFiles": "{style.css,script.js,*.html,assets/**,public/**}"
+      "includeFiles": "{style.css,script.js,*.html,assets/*.png,assets/*.pdf,public/assets/*.png,public/assets/*.pdf}"
     }
   },
   "headers": [
