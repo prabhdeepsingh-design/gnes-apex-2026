@@ -18,8 +18,8 @@ const url = require('url');
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
 const ROOT_DIR = (typeof process !== 'undefined' && process.cwd && (fs.existsSync(path.join(process.cwd(), 'style.css')) || fs.existsSync(path.join(process.cwd(), 'public', 'style.css')))) ? process.cwd() : __dirname;
-const STATE_FILE = path.join(ROOT_DIR, 'timer_state.json');
-const SUBMISSIONS_DIR = path.join(ROOT_DIR, 'submissions');
+const STATE_FILE = process.env.VERCEL ? path.join(os.tmpdir(), 'timer_state.json') : path.join(ROOT_DIR, 'timer_state.json');
+const SUBMISSIONS_DIR = process.env.VERCEL ? path.join(os.tmpdir(), 'submissions') : path.join(ROOT_DIR, 'submissions');
 const ADMIN_KEY = 'APEX_2026_HEAD_KEY_98f12c8b74';
 
 if (!fs.existsSync(SUBMISSIONS_DIR)) {
@@ -626,49 +626,46 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      // Target Event Folder
-      const subDir = path.join(SUBMISSIONS_DIR, eventType);
-      fs.mkdirSync(subDir, { recursive: true });
-
-      // Save file directly onto server hard drive
-      const destPath = path.join(subDir, safeFileName);
       const fileBuffer = Buffer.from(base64String, 'base64');
-      fs.writeFileSync(destPath, fileBuffer);
-
-      // Submission Token & Record
       const token = payload.token || `APEX26-${eventType === 'Web Wizards' ? 'WW' : (eventType === 'Prompt Engineering' ? 'PE' : 'DI')}-${schoolCode}-${Math.floor(1000 + Math.random() * 9000)}`;
-      const submissionRecord = {
-        token,
-        event: eventType,
-        schoolCode,
-        fileName: safeFileName,
-        fileSizeBytes: fileBuffer.length,
-        savedPath: destPath,
-        timestamp: new Date().toISOString(),
-        formattedTime: new Date().toLocaleString()
-      };
 
-      // Persist in JSON audit log
-      const logFile = path.join(SUBMISSIONS_DIR, 'submissions_log.json');
-      let currentLogs = [];
+      // Safe local disk storage (gracefully bypassed on read-only serverless clouds like Vercel)
       try {
-        if (fs.existsSync(logFile)) {
-          currentLogs = JSON.parse(fs.readFileSync(logFile, 'utf8'));
+        const subDir = path.join(SUBMISSIONS_DIR, eventType);
+        fs.mkdirSync(subDir, { recursive: true });
+        const destPath = path.join(subDir, safeFileName);
+        fs.writeFileSync(destPath, fileBuffer);
+
+        const logFile = path.join(SUBMISSIONS_DIR, 'submissions_log.json');
+        let currentLogs = [];
+        try {
+          if (fs.existsSync(logFile)) {
+            currentLogs = JSON.parse(fs.readFileSync(logFile, 'utf8'));
+          }
+        } catch (e) {}
+        currentLogs.push({
+          token,
+          event: eventType,
+          schoolCode,
+          fileName: safeFileName,
+          fileSizeBytes: fileBuffer.length,
+          savedPath: destPath,
+          timestamp: new Date().toISOString(),
+          formattedTime: new Date().toLocaleString()
+        });
+        fs.writeFileSync(logFile, JSON.stringify(currentLogs, null, 2), 'utf8');
+
+        const csvFile = path.join(SUBMISSIONS_DIR, 'submissions_log.csv');
+        if (!fs.existsSync(csvFile)) {
+          fs.writeFileSync(csvFile, 'Timestamp,Token,Event,School Code,File Name,Size (Bytes),Path\n', 'utf8');
         }
-      } catch (e) {}
-      currentLogs.push(submissionRecord);
-      fs.writeFileSync(logFile, JSON.stringify(currentLogs, null, 2), 'utf8');
-
-      // Append to CSV log for instant opening in MS Excel / LibreOffice
-      const csvFile = path.join(SUBMISSIONS_DIR, 'submissions_log.csv');
-      if (!fs.existsSync(csvFile)) {
-        fs.writeFileSync(csvFile, 'Timestamp,Token,Event,School Code,File Name,Size (Bytes),Path\n', 'utf8');
+        fs.appendFileSync(csvFile, `"${new Date().toLocaleString()}","${token}","${eventType}","${schoolCode}","${safeFileName}",${fileBuffer.length},"${destPath.replace(/\\/g, '\\\\')}"\n`, 'utf8');
+        console.log(`[Submission] Secured ${eventType} from ${schoolCode}: ${safeFileName} (${fileBuffer.length} bytes)`);
+      } catch (diskErr) {
+        console.warn('[Local Vault Storage Skipped on Serverless]', diskErr.message);
       }
-      fs.appendFileSync(csvFile, `"${submissionRecord.formattedTime}","${token}","${eventType}","${schoolCode}","${safeFileName}",${fileBuffer.length},"${destPath.replace(/\\/g, '\\\\')}"\n`, 'utf8');
 
-      console.log(`[Submission] Secured ${eventType} from ${schoolCode}: ${safeFileName} (${fileBuffer.length} bytes)`);
-
-      // Asynchronous background relay to Google Drive (Non-blocking)
+      // Google Drive Relay (Must be awaited on serverless so function does not exit early)
       const gasEndpoint = 'https://script.google.com/macros/s/AKfycbyuES78qX_vMNAOzxhghe3-UFcVwNHVGPq7n3LAyy5T_haGhkqkIsuZ1dGL_qPPe_qihA/exec';
       function resolveDriveFolderId(payload, eventType) {
         if (payload && payload.folderId && String(payload.folderId).trim()) {
@@ -685,8 +682,9 @@ const server = http.createServer(async (req, res) => {
       }
       const targetFolderId = resolveDriveFolderId(payload, eventType);
       console.log(`[Drive Relay] Initiating sync for ${eventType} to Drive Folder ID: ${targetFolderId}`);
+      let driveResult = null;
       if (gasEndpoint) {
-        relayToGoogleDrive(gasEndpoint, {
+        driveResult = await relayToGoogleDrive(gasEndpoint, {
           event: eventType,
           folderId: targetFolderId,
           token,
@@ -694,16 +692,20 @@ const server = http.createServer(async (req, res) => {
           fileName: safeFileName,
           mimeType: payload.mimeType || 'application/octet-stream',
           fileBase64: base64String
-        }).catch(err => console.warn('[Background Drive Sync Warning]', err.message));
+        }).catch(err => {
+          console.warn('[Background Drive Sync Warning]', err.message);
+          return { status: 'error', message: err.message };
+        });
       }
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         status: 'success',
-        message: 'Project uploaded and secured on Event Server!',
+        message: 'Project uploaded and secured in Drive!',
         token,
         fileName: safeFileName,
-        fileSize: fileBuffer.length
+        fileSize: fileBuffer.length,
+        driveResult
       }));
       return;
     } catch (err) {

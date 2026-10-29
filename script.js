@@ -17,7 +17,12 @@ const APEX_CONFIG = {
 
 // Retrieve active endpoint (code or stored)
 function getActiveGasEndpoint() {
-  return localStorage.getItem('apex_gas_endpoint') || APEX_CONFIG.gasEndpoint || '';
+  const stored = localStorage.getItem('apex_gas_endpoint');
+  if (stored && stored.includes('AKfycbzCxgBdPggSF9xpNL1V2DWiTikOwBPKzUnB3eLENydKunLTpVIooR8fBr5xklC9xLrFaA')) {
+    localStorage.removeItem('apex_gas_endpoint');
+    return APEX_CONFIG.gasEndpoint;
+  }
+  return stored || APEX_CONFIG.gasEndpoint || '';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
