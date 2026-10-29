@@ -32,18 +32,24 @@ function assert(condition, testName, details = '') {
 
 function httpGet(urlPath) {
   return new Promise((resolve, reject) => {
-    http.get(`${BASE_URL}${urlPath}`, (res) => {
+    const req = http.get(`${BASE_URL}${urlPath}`, (res) => {
       let data = [];
       res.on('data', chunk => data.push(chunk));
       res.on('end', () => {
+        const buf = Buffer.concat(data);
+        const isText = (res.headers['content-type'] || '').match(/(text|json|javascript|css)/i);
         resolve({
           statusCode: res.statusCode,
           headers: res.headers,
-          body: Buffer.concat(data).toString('utf8'),
-          rawBuffer: Buffer.concat(data)
+          body: isText ? buf.toString('utf8') : '',
+          rawBuffer: buf
         });
       });
-    }).on('error', reject);
+    });
+    req.setTimeout(30000, () => {
+      req.destroy(new Error('Request timed out'));
+    });
+    req.on('error', reject);
   });
 }
 

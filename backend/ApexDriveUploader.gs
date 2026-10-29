@@ -6,7 +6,8 @@
  * 
  * Target Folders:
  * Web Wizards Folder ID:     1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal
- * Digital Identity Folder ID: 12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx\n * Prompt Engineering Folder ID: 1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S
+ * Digital Identity Folder ID:   12ogVi0XadV9FEUv8gXo6d3zw6srrhKFx
+ * Prompt Engineering Folder ID: 1ca6yRt8RltsyvwRGzDvuzOfOAioZRs3S
  * 
  * 2-MINUTE DEPLOYMENT INSTRUCTIONS:
  * 1. Go to https://script.google.com in your browser (signed in with your Google account).
@@ -132,7 +133,9 @@ function doPost(e) {
       token: data.token,
       fileId: file.getId(),
       fileName: safeFileName,
-      fileUrl: file.getUrl()
+      fileUrl: file.getUrl(),
+      folderId: folderId,
+      folderName: folder.getName()
     })).setMimeType(ContentService.MimeType.JSON);
     
   } catch (err) {
@@ -177,6 +180,14 @@ function logToSheet(folder, data, fileName, fileUrl) {
 }
 
 function doGet(e) {
+  if (e && e.parameter && e.parameter.action === 'version') {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      bridgeVersion: 'v3.0.0-prompt-engineering',
+      configuredFolders: FOLDERS,
+      timestamp: new Date().toISOString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
   if (e && e.parameter && e.parameter.action === 'getTimer') {
     const props = PropertiesService.getScriptProperties();
     const data = {

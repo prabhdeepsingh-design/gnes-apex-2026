@@ -291,6 +291,9 @@ function relayToGoogleDrive(gasUrl, payload) {
                 const parsed = JSON.parse(body);
                 if (parsed.status === 'success') {
                   console.log(`[Drive Sync ✓ SUCCESS] File confirmed in Google Drive: "${parsed.fileName}" (File ID: ${parsed.fileId})`);
+                  if (parsed.folderName || parsed.folderId) {
+                    console.log(`[Drive Sync Folder] Saved into: "${parsed.folderName || 'Unknown'}" (Folder ID: ${parsed.folderId || 'N/A'})`);
+                  }
                   console.log(`[Drive Sync URL] ${parsed.fileUrl}`);
                 } else {
                   console.warn(`[Drive Sync Notice] Google Apps Script returned: ${parsed.message}`);
@@ -666,7 +669,7 @@ const server = http.createServer(async (req, res) => {
       console.log(`[Submission] Secured ${eventType} from ${schoolCode}: ${safeFileName} (${fileBuffer.length} bytes)`);
 
       // Asynchronous background relay to Google Drive (Non-blocking)
-      const gasEndpoint = 'https://script.google.com/macros/s/AKfycbzCxgBdPggSF9xpNL1V2DWiTikOwBPKzUnB3eLENydKunLTpVIooR8fBr5xklC9xLrFaA/exec';
+      const gasEndpoint = 'https://script.google.com/macros/s/AKfycbyuES78qX_vMNAOzxhghe3-UFcVwNHVGPq7n3LAyy5T_haGhkqkIsuZ1dGL_qPPe_qihA/exec';
       function resolveDriveFolderId(payload, eventType) {
         if (payload && payload.folderId && String(payload.folderId).trim()) {
           return String(payload.folderId).trim();
@@ -681,6 +684,7 @@ const server = http.createServer(async (req, res) => {
         return '1nmUjbjrtedhGwCT0Xrni-xKUypUVvZal';
       }
       const targetFolderId = resolveDriveFolderId(payload, eventType);
+      console.log(`[Drive Relay] Initiating sync for ${eventType} to Drive Folder ID: ${targetFolderId}`);
       if (gasEndpoint) {
         relayToGoogleDrive(gasEndpoint, {
           event: eventType,
